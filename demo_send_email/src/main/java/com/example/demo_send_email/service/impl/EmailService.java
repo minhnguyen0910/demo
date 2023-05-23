@@ -17,9 +17,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.sql.DataSource;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -38,33 +42,32 @@ public class EmailService implements IEmailService {
     @Override
     public void sendEmail(String email) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper message = null;
+        MimeMessageHelper message;
+        int a=0;
+        a++;
 
         try {
-            String path = "E:\\codegym\\demo_send_email\\src\\main\\resources\\static\\demo3.png";
+            sendQR("Minh Hello1111", "E:\\codegym\\demo_send_email\\src\\main\\resources\\static\\demo"+a+".png");
+            String imagePath = "E:\\codegym\\demo_send_email\\src\\main\\resources\\static\\demo"+a+".png";
             message = new MimeMessageHelper(mimeMessage, true);
             message.setTo(email);
             message.setSubject("Mã QR");
-            message.setText("<html>" +
-                    "<body>" +
-                    "<div style=\" font-size:15px;\">" +
-                    "Kính gửi Quý khách hàng," + "<br>" + "<br>" +
-                    "<div style =\" font-weight:bold \"> Đây là mã QR của bạn: <img src=\"https://www.apache.org/images/asf_logo_wide.gif\"/> </div>" + "<br>" +
-                    "Cảm ơn quý khách đã đặt vé xem phim của chúng tôi. " +
-                    "Vui lòng không chia sẻ mã này với bất kỳ ai, " +
-                    "vì nó được sử dụng để xác thực tài khoản của bạn." +
-                    "<br>" +
-                    "Nếu bạn không yêu cầu mã OTP, " +
-                    "vui lòng bỏ qua email này hoặc liên hệ với chúng tôi để được hỗ trợ."
-                    + "<br>"
-                    + "<br>"
-                    + "Trân trọng," +
-                    "<div style =\"color:#183661; font-size:20px ; font-weight:bold\">DN Cinema</div>" +
-                    "</div>" +
-                    "</body>" +
-                    "</html>", true);
-            FileSystemResource file1 = new FileSystemResource(new File(path));
-            message.addAttachment("png", file1);
+            message.setText("Kính gửi Quý khách hàng,<br><br>"
+                            + "<div style=\"font-weight:bold\">Đây là mã QR của bạn:</div>"
+                            + "<img src=\"cid:qr\">"
+                            + "<br>"
+                            + "Cảm ơn quý khách đã đặt vé xem phim của chúng tôi. "
+                            + "Vui lòng không chia sẻ mã này với bất kỳ ai, "
+                            + "vì nó được sử dụng để xác thực tài khoản của bạn."
+                            + "<br>"
+                            + "Nếu bạn không yêu cầu mã OTP, "
+                            + "vui lòng bỏ qua email này hoặc liên hệ với chúng tôi để được hỗ trợ."
+                            + "<br><br>"
+                            + "Trân trọng,<br>"
+                            + "<div style=\"color:#183661; font-size:20px; font-weight:bold\">DN Cinema</div>",
+                    true);
+            FileSystemResource qrImage = new FileSystemResource(new File(imagePath));
+            message.addInline("qr", qrImage);
             javaMailSender.send(message.getMimeMessage());
         } catch (MessagingException e) {
             throw new RuntimeException(e);
